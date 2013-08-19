@@ -28,41 +28,50 @@ Lander.prototype.draw = function(ctx) {
 };
 
 Lander.prototype.update = function(dt) {
-  var step = dt/300; // arbitrary tiny number
+  var step = dt/100; // arbitrary tiny number
 
   // Check player input
-  if (coq.inputter.state(coq.inputter.UP_ARROW)) {
-    this.thrustVelocity = 1;
+  if (coq.inputter.state(coq.inputter.SPACE)) {
+    this.thrustAccel = 0.6;
   } else {
-    this.thrustVelocity = 0;
+    this.thrustAccel = 0;
   }
-  if (coq.inputter.state(coq.inputter.LEFT_ARROW)) {
+  if (coq.inputter.state(coq.inputter.F)) {
     this.pos.rot -= 1;
   }
-  if (coq.inputter.state(coq.inputter.RIGHT_ARROW)) {
+  if (coq.inputter.state(coq.inputter.J)) {
     this.pos.rot += 1;
   }
 
+  // max accel
+  //if (this.thrustAccel > 0.05) this.thrustAccel = 0.05;
+  
+  // top speed
+  //if (this.thrustVelocity > 0.3) this.thrustVelocity = 0.3;
+
   // Get move vector based on thrust velocity and rotation
-  var vec = calcVector(this.thrustVelocity, this.pos.rot);
+  this.thrustVelocity += this.thrustAccel * step;
+  var vec = calcVector(this.thrustAccel, this.pos.rot);
 
   // Apply gravity
-  this.ay -= 0.05 * step;
-  vec.y -= this.ay;
+  this.ay = 0.3;
+  vec.y += this.ay;
 
   // Apply new vector to our velocity
   this.vx += vec.x * step;
   this.vy += vec.y * step;
 
   // Apply velocity to position
-  this.pos.x += this.vx;
-  this.pos.y += this.vy;
+  this.pos.x += this.vx * step;
+  this.pos.y += this.vy * step;
 
   document.getElementById("vx").innerHTML = this.vx;
   document.getElementById("vy").innerHTML = this.vy;
+  document.getElementById("ay").innerHTML = this.ay;
   document.getElementById("vel").innerHTML = this.thrustVelocity;
-  document.getElementById("x").innerHTML = this.pos.x;
-  document.getElementById("y").innerHTML = this.pos.y;
+  document.getElementById("acc").innerHTML = this.thrustAccel;
+  document.getElementById("x").innerHTML = vec.x;
+  document.getElementById("y").innerHTML = vec.y;
   document.getElementById("rot").innerHTML = this.pos.rot;
 };
 
@@ -73,7 +82,7 @@ Lander.prototype.collision = function(other) {
   this.thrustVelocity = 0;
   this.vx = 0;
   this.vy = 0;
-  this.ay = 0;
+  //this.ay = 0;
 };
 
 function calcVector(magnitude, angle) {
