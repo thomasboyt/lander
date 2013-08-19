@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lander</title>
+    <script src="vendor/almond.js"></script>
+    <script src="vendor/coquette.js"></script>
+    <script src="tmp/game.js"></script>
+    <script>
+      require(["lander/main"]);
+    </script>
+  </head>
+  <body>
+    <canvas id="container"></canvas>
+    <ul id="log">
+      <li>vy: <span id="vy"></span></li>
+      <li>ay: <span id="ay"></span></li>
+    </ul>
+  </body>
+</html>
