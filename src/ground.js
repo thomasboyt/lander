@@ -1,5 +1,7 @@
 var Ground = function(_, settings) {
- for (var i in settings) {
+  this.name = "ground";
+
+  for (var i in settings) {
     this[i] = settings[i];
   }
   this.draw = function(ctx) {

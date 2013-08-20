@@ -1,4 +1,6 @@
 var Lander = function(_, settings) {
+  this.name = "lander";
+
   for (var i in settings) {
     this[i] = settings[i];
   }
@@ -9,11 +11,7 @@ var Lander = function(_, settings) {
   this.vx = 0;
   this.vy = 0;
 
-  // acceleration
-  this.ax = 0;
-  this.ay = 0;
-
-  this.thrustAccel = 0;
+  this.firing = false;
 };
 
 Lander.prototype.draw = function(ctx) {
@@ -22,19 +20,34 @@ Lander.prototype.draw = function(ctx) {
                 this.pos.y + this.size.y/2);
   ctx.rotate(Math.PI/180 * this.pos.rot);
   ctx.fillStyle = this.color;
-  ctx.fillRect(0 - this.size.x/2, 0 - this.size.y/2, this.size.x, this.size.y);
+  
+  // because of translate, x/y pos here are relative to center of lander (0,0)
+  // also because of translate, x/y seem to reversed.
+  ctx.fillRect(0 - this.size.x/2, 0 - this.size.y/2, 
+               this.size.x, this.size.y);
+
+  if (this.firing) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(10 - this.size.x, -this.size.y/2,
+                 5, this.size.y);
+  }
+
   ctx.restore();
 };
 
 Lander.prototype.update = function(dt) {
+  var GRAVITY_ACCEL = 0.3;
+  var THRUST_ACCEL = 0.6;
+
   var step = dt/100; // arbitrary tiny number
 
   // Check player input
+  var thrustAccel = 0;
+  this.firing = false;
   if (coq.inputter.state(coq.inputter.SPACE) ||
       coq.inputter.state(coq.inputter.UP_ARROW)) {
-    this.thrustAccel = 0.6;
-  } else {
-    this.thrustAccel = 0;
+    thrustAccel = THRUST_ACCEL;
+    this.firing = true;
   }
   if (coq.inputter.state(coq.inputter.F) ||
       coq.inputter.state(coq.inputter.LEFT_ARROW)) {
@@ -46,11 +59,10 @@ Lander.prototype.update = function(dt) {
   }
 
   // Get acceleration vector based on thrust accel and rotation
-  var vec = calcVector(this.thrustAccel, this.pos.rot);
+  var vec = calcVector(thrustAccel, this.pos.rot);
 
   // Apply gravity
-  this.ay = 0.3;
-  vec.y += this.ay;
+  vec.y += GRAVITY_ACCEL;
 
   // Apply acceleration vector to our velocity
   this.vx += vec.x * step;
@@ -64,9 +76,16 @@ Lander.prototype.update = function(dt) {
 Lander.prototype.collision = function(other) {
   // TODO: collision magic
   // FOR NOW: go through things or get stuck in them
-  this.pos.y = other.pos.y - this.size.y;
-  this.vx = 0;
-  this.vy = 0;
+  if (other.name === "ground") {
+    this.pos.y = other.pos.y - this.size.y;
+    this.vx = 0;
+    this.vy = 0;
+  } else if (other.name === "collectable") {
+    coq.entities.destroy(other);
+    // todo: increment score
+    // where should score be stored? look @ https://github.com/maryrosecook/coquette/tree/master/demos/advanced
+    // for global state design
+  }
 };
 
 function calcVector(magnitude, angle) {

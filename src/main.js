@@ -1,5 +1,6 @@
 import Lander from "lander/lander";
 import Ground from "lander/ground";
+import Collectable from "lander/collectable";
 
 var Game = function(canvasId, width, height) {
   window.coq = new Coquette(this, canvasId, width, height, "#000");
@@ -9,6 +10,9 @@ var Game = function(canvasId, width, height) {
   });
   coq.entities.create(Ground, {
     pos: {x: 50, y: 325 }, size: {x: 400, y: 25}, color: "#333"
+  });
+  coq.entities.create(Collectable, {
+    pos: {x: 240, y: 75 }, size: {x: 20, y: 20}, color: "blue"
   });
 };
 
