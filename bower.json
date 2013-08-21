@@ -1,0 +1,14 @@
+{
+  "name": "lander",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "coquette": "git://github.com/maryrosecook/coquette.git",
+    "javascript-state-machine": "~2.2.0",
+    "almond": "~0.2.6"
+  }
+}

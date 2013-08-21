@@ -12,7 +12,9 @@ Attempt at making some kind of Lunar Lander-style game in JavaScript.
 
 ```
 npm install -g grunt-cli
-npm install .
+npm install -g bower
+npm install
+bower install
 grunt dev
 open http://localhost:8000
 ```
