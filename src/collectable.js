@@ -1,6 +1,4 @@
 var Collectable = function(_, settings) {
-  this.name = "collectable";
-
   this.boundingBox = coq.collider.CIRCLE;
   for (var i in settings) {
     this[i] = settings[i];

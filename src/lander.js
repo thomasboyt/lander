@@ -1,5 +1,9 @@
-var Lander = function(_, settings) {
-  this.name = "lander";
+import { calcVector } from "lander/util";
+import Collectable from "lander/collectable";
+import Ground from "lander/ground";
+
+var Lander = function(game, settings) {
+  this.game = game;
 
   for (var i in settings) {
     this[i] = settings[i];
@@ -74,25 +78,19 @@ Lander.prototype.update = function(dt) {
 };
 
 Lander.prototype.collision = function(other) {
-  // TODO: collision magic
-  // FOR NOW: go through things or get stuck in them
-  if (other.name === "ground") {
+  if (other instanceof Ground) {
+    // TODO: actual collision displacement fixing
+    // for now this just keeps you from falling thru the ground by putting you on top of it
     this.pos.y = other.pos.y - this.size.y;
     this.vx = 0;
     this.vy = 0;
-  } else if (other.name === "collectable") {
+  } else if (other instanceof Collectable) {
+    // TODO: insert a satisfying blip here
     coq.entities.destroy(other);
-    // todo: increment score
-    // where should score be stored? look @ https://github.com/maryrosecook/coquette/tree/master/demos/advanced
-    // for global state design
+    this.game.score += 1;
   }
 };
 
-function calcVector(magnitude, angle) {
-  var rad = angle * Math.PI/180;
-  var x = magnitude * Math.cos(rad);
-  var y = magnitude * Math.sin(rad);
-  return { x: x, y: y };
-}
+
 
 export default Lander;

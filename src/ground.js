@@ -1,13 +1,12 @@
 var Ground = function(_, settings) {
-  this.name = "ground";
-
   for (var i in settings) {
     this[i] = settings[i];
   }
-  this.draw = function(ctx) {
-    ctx.fillStyle = settings.color;
-    ctx.fillRect(this.pos.x, this.pos.y, this.size.x, this.size.y);
-  }; 
 };
+
+Ground.prototype.draw = function(ctx) {
+  ctx.fillStyle = this.color;
+  ctx.fillRect(this.pos.x, this.pos.y, this.size.x, this.size.y);
+}; 
 
 export default Ground;

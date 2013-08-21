@@ -14,6 +14,15 @@ var Game = function(canvasId, width, height) {
   coq.entities.create(Collectable, {
     pos: {x: 240, y: 75 }, size: {x: 20, y: 20}, color: "blue"
   });
+
+  this.score = 0;
+};
+
+Game.prototype.draw = function(ctx) {
+  // this seems to be an okay place to render a UI?
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 20px sans-serif";
+  ctx.fillText("Score: " + this.score, 10, 490);
 };
 
 new Game("container", 500, 500);
