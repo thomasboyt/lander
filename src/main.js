@@ -104,7 +104,7 @@ Game.prototype.died = function() {
 
 Game.prototype.generateCollectable = function() {
   var x = Math.floor(Math.random() * 425) + 25;
-  var y = Math.floor(Math.random() * 425);
+  var y = Math.floor(Math.random() * 400) + 25;
   coq.entities.create(Collectable, {
     pos: {x: x, y: y }, size: {x: 20, y: 20}, color: "blue"
   });
