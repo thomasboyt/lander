@@ -1,6 +1,9 @@
 {
   "undef": true,
-  "predef": ["coq", "Coquette", "console"],
+  "predef": ["coq",
+             "Coquette",
+             "StateMachine",
+             "console"],
   "node" : false,
   "browser" : true,
   "boss" : true,

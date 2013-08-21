@@ -1,6 +1,6 @@
 import { calcVector } from "lander/util";
 import Collectable from "lander/collectable";
-import Ground from "lander/ground";
+import Wall from "lander/wall";
 
 var Lander = function(game, settings) {
   this.game = game;
@@ -24,10 +24,10 @@ Lander.prototype.draw = function(ctx) {
                 this.pos.y + this.size.y/2);
   ctx.rotate(Math.PI/180 * this.pos.rot);
   ctx.fillStyle = this.color;
-  
+
   // because of translate, x/y pos here are relative to center of lander (0,0)
   // also because of translate, x/y seem to reversed.
-  ctx.fillRect(0 - this.size.x/2, 0 - this.size.y/2, 
+  ctx.fillRect(0 - this.size.x/2, 0 - this.size.y/2,
                this.size.x, this.size.y);
 
   if (this.firing) {
@@ -78,16 +78,14 @@ Lander.prototype.update = function(dt) {
 };
 
 Lander.prototype.collision = function(other) {
-  if (other instanceof Ground) {
-    // TODO: actual collision displacement fixing
-    // for now this just keeps you from falling thru the ground by putting you on top of it
-    this.pos.y = other.pos.y - this.size.y;
-    this.vx = 0;
-    this.vy = 0;
+  if (other instanceof Wall) {
+    // :(
+    this.game.fsm.died();
   } else if (other instanceof Collectable) {
     // TODO: insert a satisfying blip here
     coq.entities.destroy(other);
     this.game.score += 1;
+    this.game.generateCollectable();
   }
 };
 
