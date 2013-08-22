@@ -1,6 +1,6 @@
-import Lander from "lander/lander";
-import Wall from "lander/wall";
-import Collectable from "lander/collectable";
+import Lander from "momentum/lander";
+import Wall from "momentum/wall";
+import Collectable from "momentum/collectable";
 
 var Game = function(canvasId, width, height) {
   window.coq = new Coquette(this, canvasId, width, height, "#000");
@@ -28,6 +28,7 @@ Game.prototype.draw = function(ctx) {
   // (can always split it out to an entity if needed)
   ctx.fillStyle = "#fff";
 
+  // playing HUD
   if (this.fsm.is("playing")) {
     // Score
     ctx.textAlign = "left";
@@ -42,24 +43,32 @@ Game.prototype.draw = function(ctx) {
     // ugh javascript y u no strfmt
     var displayTime = ("" + this.timer).split('');
     displayTime.pop(); // drop last digit
-    displayTime.pop(); // okay now I just feel dumb.
+    displayTime.pop(); // lol
     displayTime.splice(displayTime.length - 1, 0, ".");
     displayTime = displayTime.join('');
 
     ctx.fillText(displayTime, 250, 275);
   }
+
+  // title scren
   if (this.fsm.is("attract")) {
     ctx.textAlign = "center";
+
     ctx.font = "bold 72px sans-serif";
     ctx.fillText("MOMENTUM", 250, 250);
+
     ctx.font = "bold 42px sans-serif";
     ctx.fillText("Press [space] to start", 250, 300);
   }
+
+  // game over screen
   if (this.fsm.is("dead")) {
     ctx.textAlign = "center";
+
     ctx.font = "bold 72px sans-serif";
     ctx.fillStyle = "red";
     ctx.fillText("GAME OVER", 250, 200);
+
     ctx.fillStyle = "#fff";
     ctx.font = "bold 32px sans-serif";
     ctx.fillText(this.reason, 250, 250);

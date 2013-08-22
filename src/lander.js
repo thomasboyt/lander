@@ -1,6 +1,6 @@
-import { calcVector } from "lander/util";
-import Collectable from "lander/collectable";
-import Wall from "lander/wall";
+import { calcVector } from "momentum/util";
+import Collectable from "momentum/collectable";
+import Wall from "momentum/wall";
 
 var Lander = function(game, settings) {
   this.game = game;
