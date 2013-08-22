@@ -80,12 +80,10 @@ Lander.prototype.update = function(dt) {
 Lander.prototype.collision = function(other) {
   if (other instanceof Wall) {
     // :(
-    this.game.fsm.died();
+    this.game.fsm.died("you hit a wall!");
   } else if (other instanceof Collectable) {
     // TODO: insert a satisfying blip here
-    coq.entities.destroy(other);
-    this.game.score += 1;
-    this.game.generateCollectable();
+    this.game.collected(other);
   }
 };
 

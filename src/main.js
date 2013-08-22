@@ -28,26 +28,43 @@ Game.prototype.draw = function(ctx) {
   // (can always split it out to an entity if needed)
   ctx.fillStyle = "#fff";
 
-  if (!this.fsm.is("attract")) {
+  if (this.fsm.is("playing")) {
+    // Score
     ctx.textAlign = "left";
     ctx.font = "bold 20px sans-serif";
-    ctx.fillText("Score: " + this.score, 10, 490);
+    ctx.fillText("Score: " + this.score, 10, 495);
+
+    // Timer
+    ctx.fillStyle = "#888";
+    ctx.textAlign = "center";
+    ctx.font = "bold 120px sans-serif";
+
+    // ugh javascript y u no strfmt
+    var displayTime = ("" + this.timer).split('');
+    displayTime.pop(); // drop last digit
+    displayTime.pop(); // okay now I just feel dumb.
+    displayTime.splice(displayTime.length - 1, 0, ".");
+    displayTime = displayTime.join('');
+
+    ctx.fillText(displayTime, 250, 275);
   }
   if (this.fsm.is("attract")) {
-    ctx.textAlign = "left";
+    ctx.textAlign = "center";
+    ctx.font = "bold 72px sans-serif";
+    ctx.fillText("MOMENTUM", 250, 250);
     ctx.font = "bold 42px sans-serif";
-    ctx.fillText("1. Get the blue things", 5, 200);
-    ctx.fillText("2. Don't hit the walls", 5, 250);
-    ctx.fillText("3. Press [space] to start", 5, 300);
-    //ctx.textAlign = "center";
-    //ctx.font = "bold 32px sans-serif";
+    ctx.fillText("Press [space] to start", 250, 300);
   }
   if (this.fsm.is("dead")) {
     ctx.textAlign = "center";
     ctx.font = "bold 72px sans-serif";
-    ctx.fillText("YOU DIED :(", 250, 250);
+    ctx.fillStyle = "red";
+    ctx.fillText("GAME OVER", 250, 200);
+    ctx.fillStyle = "#fff";
     ctx.font = "bold 32px sans-serif";
-    ctx.fillText("press R to restart", 250, 300);
+    ctx.fillText(this.reason, 250, 250);
+    ctx.fillText("your final score: " + this.score, 250, 300);
+    ctx.fillText("press R to restart", 250, 350);
   }
 };
 
@@ -60,12 +77,17 @@ Game.prototype.update = function(dt) {
     if (coq.inputter.state(coq.inputter.R)) {
       this.fsm.start();
     }
+  } else if (this.fsm.is("playing")) {
+    this.timer -= dt;
+    if (this.timer < 0) {
+      this.fsm.died("you ran out of time!");
+    }
   }
 };
 
 Game.prototype.start = function() {
   coq.entities.create(Lander, {
-    pos: { x: 225, y: 280 }, color: "#099"
+    pos: { x: 225, y: 280 }, color: "#fff"
   });
 
   // top
@@ -88,26 +110,44 @@ Game.prototype.start = function() {
     pos: {x: 475, y: 25 }, size: {x: 25, y: 450}, color: "#333"
   });
 
-  this.generateCollectable();
+  coq.runner.enqueue(this, this.generateCollectable.bind(this));
 
   this.score = 0;
+  this.timer = 7000;
 };
 
-Game.prototype.died = function() {
+Game.prototype.died = function(event, old, new_, reason) {
+  console.log(arguments);
   var all = coq.entities.all();
+
+  this.reason = reason;
 
   for (var entity in all) {
     coq.entities.destroy(all[entity]);
   }
 };
 
+Game.prototype.collected = function(other) {
+  coq.entities.destroy(other);
+  this.score += 1;
+  this.generateCollectable();
+};
 
 Game.prototype.generateCollectable = function() {
-  var x = Math.floor(Math.random() * 425) + 25;
-  var y = Math.floor(Math.random() * 400) + 25;
+  var collectablePos = {
+    x: Math.floor(Math.random() * 425) + 25,
+    y: Math.floor(Math.random() * 400) + 25
+  };
+
   coq.entities.create(Collectable, {
-    pos: {x: x, y: y }, size: {x: 20, y: 20}, color: "blue"
+    pos: collectablePos, size: {x: 20, y: 20}, color: "fff"
   });
+
+  // add to timer based on distance
+  var playerPos = coq.entities.all(Lander)[0].pos;
+  var distance = Coquette.Collider.Maths.distance(collectablePos, playerPos);
+
+  this.timer += Math.floor(distance) * 25;
 };
 
 new Game("container", 500, 500);

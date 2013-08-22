@@ -1,6 +1,6 @@
-# Lander
+# Momentum
 
-Attempt at making some kind of Lunar Lander-style game in JavaScript.
+*(a game about risk and reward)*
 
 ### Tech
 
