@@ -1,6 +1,7 @@
 import Lander from "momentum/lander";
 import Wall from "momentum/wall";
 import Collectable from "momentum/collectable";
+import UI from "momentum/ui";
 
 var Game = function(canvasId, width, height) {
   window.coq = new Coquette(this, canvasId, width, height, "#000");
@@ -21,60 +22,8 @@ var Game = function(canvasId, width, height) {
       }
     }
   });
-};
 
-Game.prototype.draw = function(ctx) {
-  // this seems to be an okay place to render a UI?
-  // (can always split it out to an entity if needed)
-  ctx.fillStyle = "#fff";
-
-  // playing HUD
-  if (this.fsm.is("playing")) {
-    // Score
-    ctx.textAlign = "left";
-    ctx.font = "bold 20px sans-serif";
-    ctx.fillText("Score: " + this.score, 10, 495);
-
-    // Timer
-    ctx.fillStyle = "#888";
-    ctx.textAlign = "center";
-    ctx.font = "bold 120px sans-serif";
-
-    // ugh javascript y u no strfmt
-    var displayTime = ("" + this.timer).split('');
-    displayTime.pop(); // drop last digit
-    displayTime.pop(); // lol
-    displayTime.splice(displayTime.length - 1, 0, ".");
-    displayTime = displayTime.join('');
-
-    ctx.fillText(displayTime, 250, 275);
-  }
-
-  // title scren
-  if (this.fsm.is("attract")) {
-    ctx.textAlign = "center";
-
-    ctx.font = "bold 72px sans-serif";
-    ctx.fillText("MOMENTUM", 250, 250);
-
-    ctx.font = "bold 42px sans-serif";
-    ctx.fillText("Press [space] to start", 250, 300);
-  }
-
-  // game over screen
-  if (this.fsm.is("dead")) {
-    ctx.textAlign = "center";
-
-    ctx.font = "bold 72px sans-serif";
-    ctx.fillStyle = "red";
-    ctx.fillText("GAME OVER", 250, 200);
-
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 32px sans-serif";
-    ctx.fillText(this.reason, 250, 250);
-    ctx.fillText("your final score: " + this.score, 250, 300);
-    ctx.fillText("press R to restart", 250, 350);
-  }
+  coq.entities.create(UI);
 };
 
 Game.prototype.update = function(dt) {
@@ -122,23 +71,25 @@ Game.prototype.start = function() {
   coq.runner.enqueue(this, this.generateCollectable.bind(this));
 
   this.score = 0;
-  this.timer = 7000;
+  this.timer = 15000;
 };
 
 Game.prototype.died = function(event, old, new_, reason) {
-  console.log(arguments);
   var all = coq.entities.all();
 
   this.reason = reason;
 
   for (var entity in all) {
-    coq.entities.destroy(all[entity]);
+    if (!(all[entity] instanceof UI)) {
+      coq.entities.destroy(all[entity]);
+    }
   }
 };
 
 Game.prototype.collected = function(other) {
-  coq.entities.destroy(other);
+  this.timer += other.worth;
   this.score += 1;
+  coq.entities.destroy(other);
   this.generateCollectable();
 };
 
@@ -148,15 +99,16 @@ Game.prototype.generateCollectable = function() {
     y: Math.floor(Math.random() * 400) + 25
   };
 
+  // add to timer based on distance
+  var lander = coq.entities.all(Lander)[0];
+  var distance = Coquette.Collider.Maths.distance(collectablePos, lander.pos);
+
+  var worth = Math.floor(distance) * 25;
+  if (this.timer > 15000) this.timer = 15000;
   coq.entities.create(Collectable, {
-    pos: collectablePos, size: {x: 20, y: 20}, color: "fff"
+    pos: collectablePos, size: {x: 20, y: 20}, color: "#fff", worth: worth
   });
 
-  // add to timer based on distance
-  var playerPos = coq.entities.all(Lander)[0].pos;
-  var distance = Coquette.Collider.Maths.distance(collectablePos, playerPos);
-
-  this.timer += Math.floor(distance) * 25;
 };
 
 new Game("container", 500, 500);

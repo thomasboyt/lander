@@ -87,6 +87,4 @@ Lander.prototype.collision = function(other) {
   }
 };
 
-
-
 export default Lander;
